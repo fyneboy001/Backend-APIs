@@ -1,0 +1,23 @@
+{
+  "name": "express",
+  "version": "0.0.1",
+  "description": "Fyneboy's work",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [
+    "get",
+    "post",
+    "update",
+    "delete"
+  ],
+  "author": "Fyneboy Rosemary",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "nodemon": "^3.1.9"
+  }
+}
