@@ -1,16 +1,18 @@
 const postModel = require("../model/model.post");
 
 const createPost = async (req, res) => {
+  //using cookie to get the creator id
+  const { id } = req.cookies;
   //requesting for the information(post that will be sent from the frontend)
   const body = req.body;
 
   //create a new user using try and catch
   try {
-    const newPost = new postModel(body);
+    const newPost = new postModel({ ...body, creatorId: id });
     await newPost.save();
-    res.json("post created successfully");
+    res.status(201).json("post created successfully");
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 
@@ -20,7 +22,7 @@ const getAllPost = async (req, res) => {
     const allPost = await postModel.find();
     return res.json(allPost);
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 
@@ -31,9 +33,9 @@ const getOnePost = async (req, res) => {
   try {
     //const onePost = await postModel.findById(req.params.id);
     const onePost = await postModel.findById(id);
-    return res.json(onePost);
+    return res.cookie("id", getOnePost.id, { httpOnly: true }).json(onePost);
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 
@@ -47,17 +49,17 @@ const deletePost = async (req, res) => {
 
     //check if post exist, else send error message to user
     if (!post) {
-      return res.send("Post not found");
+      return res.status(404).send("Post not found");
     }
     //check if the creatorid in the post matches the creator id passed from the body
     if (post.creatorId.toString() !== creatorId) {
-      return res.send("this post does not belong to you");
+      return res.status(403).send("this post does not belong to you");
     }
 
     await postModel.findByIdAndDelete(id);
-    res.send("Post deleted successfully");
+    res.status(200).send("Post deleted successfully");
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 
@@ -70,17 +72,17 @@ const updatePost = async (req, res) => {
     //get the post to be updated using the id
     const Post = await postModel.findById(id);
     if (!Post) {
-      return res.json("Post not found");
+      return res.status(404).json("Post not found");
     }
     if (post.creatorId.toString() !== creatorId) {
-      return res.json({ message: "Post does not belong to you" });
+      return res.status(403).json({ message: "Post does not belong to you" });
     }
 
     //Now update post
     await postModel.findByIdAndUpdate(id, { ...data }, { now: true });
-    return res.json("Post updated successfully");
+    return res.status(200).json("Post updated successfully");
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 

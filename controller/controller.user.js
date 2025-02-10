@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
   //Validate user by checcking if their email exist
   const checkUserEmail = await userModel.findOne({ email: others.email });
   if (checkUserEmail) {
-    return res.json("User already exist");
+    return res.status(409).json("User already exist");
   }
 
   //Creating the part of the createUser function that will save the information past from the frontend hence creating the user account
@@ -21,9 +21,9 @@ const createUser = async (req, res) => {
   try {
     const newUser = new userModel({ password: hashPassword, ...others });
     await newUser.save();
-    return res.json("User account created successfully");
+    return res.status(201).json("User account created successfully");
   } catch (error) {
-    return res.json("Unable to create account");
+    return res.status(422).json("Unable to create account");
   }
 };
 
@@ -33,24 +33,27 @@ const userLogin = async (req, res) => {
 
   //Check if email and password matches
   if (!email || !password) {
-    return res.json("provide valid credentials");
+    return res.status(400).json("provide valid credentials");
   }
 
   //Check if user has an account
   const checkUser = await userModel.findOne({ email });
   if (!checkUser) {
-    return res.json("User does not exist: Create an account");
+    return res.status(404).json("User does not exist: Create an account");
   }
 
   //check if password is correct
   const checkPassword = bcrypt.compareSync(password, checkUser.password);
   console.log(checkPassword);
-  if (!checkpassword) {
-    return res.json("Invalid password");
+  if (!checkPassword) {
+    return res.status(400).json("Invalid password");
   }
 
   //Return user's information
-  return res.json(checkUser);
+  return res
+    .cookie("id", checkUser.id, { httpOnly: true })
+    .status(200)
+    .json(checkUser);
 };
 
 //Delete user function
@@ -59,9 +62,9 @@ const deleteUser = async (req, res) => {
 
   try {
     const user = await userModel.findByIdAndDelete(id);
-    res.send("User Account Deleted Successfully");
+    res.status(200).send("User Account Deleted Successfully");
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 
@@ -73,7 +76,7 @@ const getOneUser = async (req, res) => {
     const oneUser = await userModel.findById(id);
     return res.json(oneUser);
   } catch (error) {
-    res.send("something went wrong");
+    res.status(500).send("something went wrong");
   }
 };
 

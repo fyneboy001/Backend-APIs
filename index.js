@@ -6,6 +6,8 @@ app.use(express.json());
 const userRoute = require("./route/route.user");
 const postRoute = require("./route/route.post");
 app.use(userRoute);
+const cookieParser = require("cookie-parser");
+app.use(cookieParser);
 
 //connecting express application to mongodb
 mongoose
